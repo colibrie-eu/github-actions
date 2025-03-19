@@ -64,8 +64,8 @@ jobs:
 
           SERVICE=${GITHUB_REPOSITORY#*/}
 
-          echo $ENVIRONMENT >> $GITHUB_OUTPUT
-          echo $SERVICE >> $GITHUB_OUTPUT
+          echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
+          echo "service=$SERVICE" >> $GITHUB_OUTPUT
 
           yq -i ".image.tag = \"${IMAGE_TAG}\"" values/$SERVICE-$ENVIRONMENT.yaml
 
@@ -73,7 +73,7 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore(${{ steps.update-values-yaml.outputs.SERVICE }}): update ${{ steps.update-values-yaml.outputs.ENVIRONMENT }} values yaml"
+          commit_message: "chore(${{ steps.update-values-yaml.outputs.service }}): update ${{ steps.update-values-yaml.outputs.environment }} values yaml"
           commit_user_name: "tech889"
           commit_user_email: "tech@colibrie.eu"
           commit_author: "tech889 <tech@colibrie.eu>"
