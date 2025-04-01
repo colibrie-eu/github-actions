@@ -3,10 +3,6 @@ name: Release
 
 on:
   workflow_call:
-    inputs:
-      tag:
-        required: true
-        type: string
 
 jobs:
   release:
@@ -24,20 +20,10 @@ jobs:
         run: |
           go build -v ./...
 
-      - name: Tag
-        run: |
-          if ! [[ ${{ github.event.inputs.tag }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "tag needs to be x.y.z, e.g. 1.2.3"
-            exit 1
-          fi
-          git tag v${{ github.event.inputs.tag }}
-          git push origin v${{ github.event.inputs.tag }}
-
       - name: Release
         uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/v')
         with:
-          name: v${{ github.event.inputs.tag }}
-          tag_name: v${{ github.event.inputs.tag }}
           fail_on_unmatched_files: true
           generate_release_notes: true
           prerelease: false
