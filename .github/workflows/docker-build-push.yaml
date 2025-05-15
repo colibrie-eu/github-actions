@@ -43,7 +43,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           secrets: |
-            "github_token=${{ secrets.GITHUB_TOKEN }}"
+            "bot_pkg_token=${{ secrets.BOT_PKG_TOKEN }}"
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
