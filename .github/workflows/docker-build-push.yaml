@@ -35,6 +35,14 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=sha,format=short
 
+      - name: Configure Docker registry mirror
+        run: |
+          sudo mkdir -p /etc/docker
+          echo '{
+            "registry-mirrors": ["https://mirror.gcr.io"]
+          }' | sudo tee /etc/docker/daemon.json
+          sudo systemctl restart docker
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
