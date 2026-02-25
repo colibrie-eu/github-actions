@@ -35,6 +35,27 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=sha,format=short
 
+      - name: Set variables
+        id: variables
+        run: |
+          SERVICE=${GITHUB_REPOSITORY#*/}
+
+          echo "service=$SERVICE" >> $GITHUB_OUTPUT
+
+          ENVIRONMENT=development
+          IMAGE_TAG=$(echo $DOCKER_METADATA_OUTPUT_TAGS | tr '\n' ' ' | grep -o 'sha-[a-f0-9]*')
+
+          if [[ $GITHUB_REF == refs/tags/v* ]]; then
+            ENVIRONMENT=production
+            IMAGE_TAG=$(echo $GITHUB_REF | grep -o '[0-9]*\.[0-9]*\.[0-9]*$')
+          elif [[ $GITHUB_REF == refs/heads/main ]]; then
+            ENVIRONMENT=staging
+          fi
+
+          echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
+          echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
@@ -64,29 +85,13 @@ jobs:
         id: update-values-yaml
         if: github.event_name != 'pull_request'
         run: |
-          if [[ $GITHUB_REF == refs/tags/v* ]]; then
-            ENVIRONMENT=production
-            IMAGE_TAG=$(echo $GITHUB_REF | grep -o '[0-9]*\.[0-9]*\.[0-9]*$')
-          elif [[ $GITHUB_REF == refs/heads/main ]]; then
-            ENVIRONMENT=staging
-            IMAGE_TAG=$(echo $DOCKER_METADATA_OUTPUT_TAGS | tr '\n' ' ' | grep -o 'sha-[a-f0-9]*')
-          elif [[ $GITHUB_REF == refs/heads/dev ]]; then
-            ENVIRONMENT=development
-            IMAGE_TAG=$(echo $DOCKER_METADATA_OUTPUT_TAGS | tr '\n' ' ' | grep -o 'sha-[a-f0-9]*')
-          fi
-
-          SERVICE=${GITHUB_REPOSITORY#*/}
-
-          echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
-          echo "service=$SERVICE" >> $GITHUB_OUTPUT
-
-          yq -i ".image.tag = \"${IMAGE_TAG}\"" values/$SERVICE-$ENVIRONMENT.yaml
+          yq -i ".image.tag = \"${{ steps.variables.outputs.image_tag }}\"" values/${{ steps.variables.outputs.service }}-${{ steps.variables.outputs.environment }}.yaml
 
       - name: Commit and push values yaml
         if: github.event_name != 'pull_request'
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore(${{ steps.update-values-yaml.outputs.service }}): update ${{ steps.update-values-yaml.outputs.environment }} values yaml"
+          commit_message: "chore(${{ steps.variables.outputs.service }}): update ${{ steps.update-values-yaml.outputs.environment }} values yaml"
           commit_user_name: "colibot"
           commit_user_email: "tech@colibrie.eu"
           commit_author: "colibot <tech@colibrie.eu>"
