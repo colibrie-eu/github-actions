@@ -44,22 +44,27 @@ jobs:
 
           ENVIRONMENT=development
           IMAGE_TAG=$(echo $DOCKER_METADATA_OUTPUT_TAGS | tr '\n' ' ' | grep -o 'sha-[a-f0-9]*')
+          VERSION=$(echo $IMAGE_TAG)
 
           if [[ $GITHUB_REF == refs/tags/v* ]]; then
             ENVIRONMENT=production
             IMAGE_TAG=$(echo $GITHUB_REF | grep -o '[0-9]*\.[0-9]*\.[0-9]*$')
+            VERSION=$(echo "v$IMAGE_TAG")
           elif [[ $GITHUB_REF == refs/heads/main ]]; then
             ENVIRONMENT=staging
           fi
 
           echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
           echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           context: .
+          build-args: |
+            VERSION=${{ steps.variables.outputs.version }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
