@@ -46,12 +46,21 @@ jobs:
           IMAGE_TAG=$(echo $DOCKER_METADATA_OUTPUT_TAGS | tr '\n' ' ' | grep -o 'sha-[a-f0-9]*')
           VERSION=$(echo $IMAGE_TAG)
 
+          FEATURE_HOTJAR=false
+          FEATURE_SETTLEMENTS=true
+
           if [[ $GITHUB_REF == refs/tags/v* ]]; then
             ENVIRONMENT=production
             IMAGE_TAG=$(echo $GITHUB_REF | grep -o '[0-9]*\.[0-9]*\.[0-9]*$')
             VERSION=$(echo "v$IMAGE_TAG")
+
+            FEATURE_HOTJAR=false
+            FEATURE_SETTLEMENTS=false
           elif [[ $GITHUB_REF == refs/heads/main ]]; then
             ENVIRONMENT=staging
+
+            FEATURE_HOTJAR=false
+            FEATURE_SETTLEMENTS=false
           fi
 
           echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
