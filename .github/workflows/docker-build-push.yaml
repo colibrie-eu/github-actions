@@ -67,6 +67,9 @@ jobs:
           echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
+          echo "feature_hotjar=$FEATURE_HOTJAR" >> $GITHUB_OUTPUT
+          echo "feature_settlements=$FEATURE_SETTLEMENTS" >> $GITHUB_OUTPUT
+
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
@@ -74,6 +77,8 @@ jobs:
           context: .
           build-args: |
             VERSION=${{ steps.variables.outputs.version }}
+            FEATURE_HOTJAR=${{ steps.variables.outputs.feature_hotjar }}
+            FEATURE_SETTLEMENTS=${{ steps.variables.outputs.feature_settlements }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
