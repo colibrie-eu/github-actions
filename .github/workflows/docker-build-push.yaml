@@ -76,6 +76,7 @@ jobs:
         with:
           context: .
           build-args: |
+            ENVIRONMENT=${{ steps.variables.outputs.environment }}
             VERSION=${{ steps.variables.outputs.version }}
             FEATURE_HOTJAR=${{ steps.variables.outputs.feature_hotjar }}
             FEATURE_SETTLEMENTS=${{ steps.variables.outputs.feature_settlements }}
