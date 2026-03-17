@@ -109,6 +109,7 @@ jobs:
           FILE="values/${{ steps.variables.outputs.service }}-${{ steps.variables.outputs.environment }}.yaml"
 
           yq -i ".image.tag = \"${{ steps.variables.outputs.image_tag }}\"" "$FILE"
+          yq -i ".podAnnotations.deploy-timestamp = \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"" "$FILE"
 
       - name: Commit and push values yaml
         if: github.event_name != 'pull_request'
