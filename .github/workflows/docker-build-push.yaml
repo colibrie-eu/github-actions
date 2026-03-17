@@ -105,7 +105,9 @@ jobs:
         id: update-values-yaml
         if: github.event_name != 'pull_request'
         run: |
-          yq -i ".image.tag = \"${{ steps.variables.outputs.image_tag }}\"" values/${{ steps.variables.outputs.service }}-${{ steps.variables.outputs.environment }}.yaml
+          FILE="values/${{ steps.variables.outputs.service }}-${{ steps.variables.outputs.environment }}.yaml"
+
+          yq -i ".image.tag = \"${{ steps.variables.outputs.image_tag }}\"" "$FILE"
 
       - name: Commit and push values yaml
         if: github.event_name != 'pull_request'
