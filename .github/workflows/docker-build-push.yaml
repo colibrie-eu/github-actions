@@ -43,8 +43,8 @@ jobs:
           echo "service=$SERVICE" >> $GITHUB_OUTPUT
 
           ENVIRONMENT=development
-          IMAGE_TAG=$(echo $DOCKER_METADATA_OUTPUT_TAGS | tr '\n' ' ' | grep -o 'sha-[a-f0-9]*')
-          VERSION=$(echo $IMAGE_TAG)
+          IMAGE_TAG=dev
+          VERSION=$(echo $DOCKER_METADATA_OUTPUT_TAGS | tr '\n' ' ' | grep -o 'sha-[a-f0-9]*')
 
           FEATURE_HOTJAR=false
           FEATURE_SETTLEMENTS=true
@@ -58,6 +58,7 @@ jobs:
             FEATURE_SETTLEMENTS=false
           elif [[ $GITHUB_REF == refs/heads/main ]]; then
             ENVIRONMENT=staging
+            IMAGE_TAG=main
 
             FEATURE_HOTJAR=false
             FEATURE_SETTLEMENTS=false
