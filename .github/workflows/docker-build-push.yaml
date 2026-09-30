@@ -3,6 +3,16 @@ name: Docker Build and Push
 
 on:
   workflow_call:
+    secrets:
+      BOT_PKG_TOKEN:
+        description: Existing private package registry token inherited from callers
+        required: false
+      BOT_REPO_TOKEN:
+        description: Existing Helm repository token inherited from callers
+        required: false
+      SENTRY_AUTH_TOKEN:
+        description: Optional Sentry source-map upload token for trusted builds
+        required: false
 
 env:
   REGISTRY: ghcr.io
@@ -81,11 +91,14 @@ jobs:
             VERSION=${{ steps.variables.outputs.version }}
             FEATURE_HOTJAR=${{ steps.variables.outputs.feature_hotjar }}
             FEATURE_SETTLEMENTS=${{ steps.variables.outputs.feature_settlements }}
+            SENTRY_ORG=${{ vars.SENTRY_ORG }}
+            SENTRY_PROJECT=${{ vars.SENTRY_PROJECT }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           secrets: |
             "bot_pkg_token=${{ secrets.BOT_PKG_TOKEN }}"
+            "sentry_auth_token=${{ github.event_name != 'pull_request' && secrets.SENTRY_AUTH_TOKEN || '' }}"
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
